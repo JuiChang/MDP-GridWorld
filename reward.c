@@ -72,10 +72,13 @@ int main() {
     // a, b, c, final cell
     for (j = 0; j < 4; ++j) {
         reward[31][j] = 0;
-        reward[24][j] = 0;
+        reward[14][j] = 0;
         reward[48][j] = 0;
         reward[99][j] = 0;
     }
+
+    reward[89][1] = 100;
+    reward[98][2] = 100;
 
     fp = fopen("reward.csv", "w");
 

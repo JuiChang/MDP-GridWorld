@@ -8,7 +8,7 @@ int main() {
     int j = 0;
     FILE *fp;
 
-    for(i = 1; i <= 98; ++i)      // assume all get into the right cell when taking action : 3(right)
+    for(i = 0; i <= 98; ++i)      // assume all get into the right cell when taking action : 3(right)
         action_1[i][i + 1] = 1;
 
     for (i = 9; i <= 89; i += 10) {  // right edge
