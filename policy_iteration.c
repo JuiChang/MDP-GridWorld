@@ -56,10 +56,6 @@ int main(void) {
     //  first policy : always goes left
     for(i = 0; i < 10; ++i)
         for(j = 0; j < 10; ++j) {
-            /*
-            if((i == 3 && j == 1) || (i == 1 && j == 4) || (i == 4 && j == 8) || (i == 9 && j == 9))
-                cur_act[i][j] = 0;
-            else*/
                 cur_act[i][j] = 'L';
                 new_act[i][j] = 'L';
         }
@@ -69,7 +65,6 @@ int main(void) {
         in = fgetc(stdin);
         if(in == 10) {  // input ENTER
             ++k;
-            //factor *= 0.8;
             value_diff_count = 0;
             act_diff_count = 0;
 
@@ -84,19 +79,15 @@ int main(void) {
                     max = -1000;
                     for(action = 0; action < 4; ++action) {
                         // each action
+
                         if((cur_act[row][col] == 'L' && action == 0) || (cur_act[row][col] == 'U' && action == 1) || (cur_act[row][col] == 'R' && action == 2) || (cur_act[row][col] == 'D' && action == 3) || conti_same_value == 20) {    // if conti_same_value == 20 : do in the iteration after the iteration in which conti_same_value add to 20
                             expected = 0;
-                            //printf("\nrow = %d\n", row);
-                            //printf("col = %d\n", col);
-                            //printf("cur_act[row][col] = %c\n", cur_act[row][col]);
-                            //printf("action = %d\n", action);
                             for(desti = 0; desti < 100; ++desti) {
                                 expected += action_all[10*row + col][desti][action] * prevalue[desti/10][desti%10];   // (prob. to a desti) *  (previous(k-1) value of the desti)
                             }
-                            //printf("expected = %f\n", expected);
 
                             if(reward[10*row + col][action] + factor*expected > max) {
-                                //printf("reward[10*row + col][action] = %f\n", reward[10*row + col][action]);
+
                                 max = reward[10*row + col][action] + factor*expected;
                                 if(conti_same_value == 20) {    // do in the iteration after the iteration in which conti_same_value add to 20
                                     if(!(row == 3 && col == 1) && !(row == 1 && col == 4) && !(row == 4 && col == 8) && !(row == 9 && col == 9)) {
@@ -116,6 +107,8 @@ int main(void) {
                         ++value_diff_count;
                     if(conti_same_value == 20 && new_act[row][col] != cur_act[row][col])    // if conti_same_value == 20 : do in the iteration after the iteration in which conti_same_value add to 20
                         ++act_diff_count;
+
+                    // each state end
                 }   // col loop end
             }   // row loop end
             if(value_diff_count == 0) {
