@@ -76,6 +76,7 @@ int main(void) {
 
                         if(reward[10*row + col][action] + expected > max) {
                             max = reward[10*row + col][action] + expected;
+                            // leave the action field of a b c and final state empty. actually, they are don't care condition(so remove the if below is OK)
                             if(!(row == 3 && col == 1) && !(row == 1 && col == 4) && !(row == 4 && col == 8) && !(row == 9 && col == 9)) {
                                 switch(action) {
                                     case 0: act[row][col] = 'L';    break;

@@ -22,7 +22,7 @@ int main(void) {
     float prevalue[10][10] = {{0}};
 
     unsigned int col = 0, row = 0, action = 0, desti = 0, i = 0, j = 0;  // for loops
-    float max = -100000000;
+    float max = -1000;
     float expected = 0;
 
     unsigned int value_diff_count = 0;
@@ -32,6 +32,10 @@ int main(void) {
     unsigned int act_diff_count = 0;
 
     unsigned int conti_same_value = 0;
+
+    float factor = 0.8;
+
+    unsigned int policy_count = 1;
 
     csv_read_float("./action_1.csv", 100, 100, action_l);
     csv_read_float("./action_2.csv", 100, 100, action_u);
@@ -51,13 +55,21 @@ int main(void) {
 
     //  first policy : always goes left
     for(i = 0; i < 10; ++i)
-        for(j = 0; j < 10; ++j)
-            cur_act[i][j] = 'L';
+        for(j = 0; j < 10; ++j) {
+            /*
+            if((i == 3 && j == 1) || (i == 1 && j == 4) || (i == 4 && j == 8) || (i == 9 && j == 9))
+                cur_act[i][j] = 0;
+            else*/
+                cur_act[i][j] = 'L';
+                new_act[i][j] = 'L';
+        }
+
 
     while(1) {
         in = fgetc(stdin);
         if(in == 10) {  // input ENTER
             ++k;
+            //factor *= 0.8;
             value_diff_count = 0;
             act_diff_count = 0;
 
@@ -69,18 +81,24 @@ int main(void) {
                 for(col = 0; col <10; ++col) {
                     // each state
 
-                    max = -100000000;
+                    max = -1000;
                     for(action = 0; action < 4; ++action) {
                         // each action
-                        if((cur_act[row][col] == 'L' && action == 0) || (cur_act[row][col] == 'U' && action == 1) || (cur_act[row][col] == 'R' && action == 2) || (cur_act[row][col] == 'D' && action == 3) || conti_same_value == 20) {
+                        if((cur_act[row][col] == 'L' && action == 0) || (cur_act[row][col] == 'U' && action == 1) || (cur_act[row][col] == 'R' && action == 2) || (cur_act[row][col] == 'D' && action == 3) || conti_same_value == 20) {    // if conti_same_value == 20 : do in the iteration after the iteration in which conti_same_value add to 20
                             expected = 0;
+                            //printf("\nrow = %d\n", row);
+                            //printf("col = %d\n", col);
+                            //printf("cur_act[row][col] = %c\n", cur_act[row][col]);
+                            //printf("action = %d\n", action);
                             for(desti = 0; desti < 100; ++desti) {
                                 expected += action_all[10*row + col][desti][action] * prevalue[desti/10][desti%10];   // (prob. to a desti) *  (previous(k-1) value of the desti)
                             }
+                            //printf("expected = %f\n", expected);
 
-                            if(reward[10*row + col][action] + expected > max) {
-                                max = reward[10*row + col][action] + expected;
-                                if(conti_same_value == 20) {
+                            if(reward[10*row + col][action] + factor*expected > max) {
+                                //printf("reward[10*row + col][action] = %f\n", reward[10*row + col][action]);
+                                max = reward[10*row + col][action] + factor*expected;
+                                if(conti_same_value == 20) {    // do in the iteration after the iteration in which conti_same_value add to 20
                                     if(!(row == 3 && col == 1) && !(row == 1 && col == 4) && !(row == 4 && col == 8) && !(row == 9 && col == 9)) {
                                         switch(action) {
                                             case 0: new_act[row][col] = 'L';  break;
@@ -96,25 +114,38 @@ int main(void) {
                     value[row][col] = max;
                     if(value[row][col] != prevalue[row][col])
                         ++value_diff_count;
-                    if(conti_same_value == 20 && new_act[row][col] != cur_act[row][col])
+                    if(conti_same_value == 20 && new_act[row][col] != cur_act[row][col])    // if conti_same_value == 20 : do in the iteration after the iteration in which conti_same_value add to 20
                         ++act_diff_count;
                 }   // col loop end
             }   // row loop end
-            if(value_diff_count == 0)
+            if(value_diff_count == 0) {
                 ++conti_same_value;
+                if(conti_same_value == 21) {
+                    printf("best policy found!!!\n");
+                    return 0;
+                }
+            } else
+                conti_same_value = 0;
             printf("k = %u\n", k);
+            printf("policy_count == %u\n", policy_count);
             printf("#changed-value states = %u\n", value_diff_count);   // 0 when k >= 72
-            printf("#changed-act states = %u\n", act_diff_count);   // 0 when k >= 26
+            printf("#changed-act states when try new policy = %u\n", act_diff_count);   // 0 when k >= 26
             printf("conti_same_value = %u\n", conti_same_value);
             upsidedown_print_float_matrix(10, 10, value);
             printf("current policy : \n");
             upsidedown_print_char_matrix(10, 10, cur_act);
-            if(conti_same_value == 20 && act_diff_count > 0) {
-                printf("\nthere is a better policy, we'll apply it from now on\n");
+            if(act_diff_count > 0) {    // check the iteration after the iteration in which conti_same_value add to 20
+                printf("\nthere is a better policy, we'll apply it from now on....\n");
                 for(i = 0; i < 10; ++i)
-                    for(j = 0; j < 10; ++j)
+                    for(j = 0; j < 10; ++j) {
                         cur_act[i][j] = new_act[i][j];
+                        value[i][j] = 0;
+                        prevalue[i][j] = 0;
+                    }
                 conti_same_value = 0;
+                //factor = 0.8;
+                k = 0;
+                ++policy_count;
             }
         } else {
             printf("error, undefined input\n");
