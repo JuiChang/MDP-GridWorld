@@ -22,7 +22,7 @@ int main(void) {
     float prevalue[10][10] = {{0}};
 
     unsigned int col = 0, row = 0, action = 0, desti = 0, i = 0, j = 0;  // for loops
-    float max = -1000;
+    float max = -1000000;
     float expected = 0;
 
     unsigned int value_diff_count = 0;
@@ -56,8 +56,8 @@ int main(void) {
     //  first policy : always goes left
     for(i = 0; i < 10; ++i)
         for(j = 0; j < 10; ++j) {
-                cur_act[i][j] = 'L';
-                new_act[i][j] = 'L';
+                cur_act[i][j] = 'R';
+                new_act[i][j] = 'R';
         }
 
 
@@ -76,7 +76,7 @@ int main(void) {
                 for(col = 0; col <10; ++col) {
                     // each state
 
-                    max = -1000;
+                    max = -1000000;
                     for(action = 0; action < 4; ++action) {
                         // each action
 
@@ -136,7 +136,6 @@ int main(void) {
                         prevalue[i][j] = 0;
                     }
                 conti_same_value = 0;
-                //factor = 0.8;
                 k = 0;
                 ++policy_count;
             }
